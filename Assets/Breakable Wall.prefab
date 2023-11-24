@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Breakable Wall
       objectReference: {fileID: 0}
+    - target: {fileID: 1217196312279917906, guid: 8030f535045a26f4b9b9fdc5ebf01da7, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 3942047562867575744, guid: 8030f535045a26f4b9b9fdc5ebf01da7, type: 3}
       propertyPath: m_Enabled
       value: 1
