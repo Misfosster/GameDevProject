@@ -7,13 +7,23 @@ public class Movement : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float turnSpeed = 100f;
     [SerializeField] private float jumpHeight = 7f;
+    private bool isGrounded;
     private Rigidbody rb;
 
     private float timeSinceJump = 0f;
     public float jumpCooldown = 1.5f; // Adjust the cooldown time as needed
+
+    private float speed;
+    private float boostTimer;
+
+    private bool boosting;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        speed = moveSpeed;
+        boostTimer = 0;
+
     }
 
     void Update()
@@ -21,7 +31,7 @@ public class Movement : MonoBehaviour
         // Move forward
         if (Input.GetKey(KeyCode.W))
         {
-            transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+            transform.Translate(Vector3.forward * speed * Time.deltaTime);
         }
 
         // Move backward
@@ -31,40 +41,61 @@ public class Movement : MonoBehaviour
         }
 
         // Move left
-        //if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A))
         {
             transform.Translate(Vector3.left * moveSpeed * Time.deltaTime);
         }
 
         // Move right
-        //if (Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.D))
         {
             transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
         }
 
         // Turn left
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.Q))
         {
             transform.Rotate(Vector3.down * turnSpeed * Time.deltaTime);
         }
 
         // Turn right
-        if (Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.E))
         {
             transform.Rotate(Vector3.up * turnSpeed * Time.deltaTime);
         }
 
         // Jump
-    if (Input.GetKeyDown(KeyCode.Space))
-    {
-        if (timeSinceJump > jumpCooldown)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.AddForce(Vector3.up * jumpHeight, ForceMode.Impulse);
-            timeSinceJump = 0f; // Reset the cooldown timer
+            if (timeSinceJump > jumpCooldown)
+            {
+                rb.AddForce(Vector3.up * jumpHeight, ForceMode.Impulse);
+                timeSinceJump = 0f; // Reset the cooldown timer
+            }
+        }
+
+        timeSinceJump += Time.deltaTime;
+
+        if (boosting)
+        {
+            boostTimer += Time.deltaTime;
+            if (boostTimer >= 3)
+            {
+                speed = moveSpeed;
+                boostTimer = 0;
+                boosting = false;
+            }
+        }
+    }
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "SpeedBoost")
+        {
+            boosting = true;
+            speed = moveSpeed * 2;
         }
     }
 
-    timeSinceJump += Time.deltaTime;
-    }    
+}    
     
-}
+ 
