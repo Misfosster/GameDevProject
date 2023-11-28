@@ -7,7 +7,6 @@ public class Movement : MonoBehaviour
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float turnSpeed = 100f;
     [SerializeField] private float jumpHeight = 7f;
-    private bool isGrounded;
     private Rigidbody rb;
 
     private float timeSinceJump = 0f;
@@ -32,25 +31,25 @@ public class Movement : MonoBehaviour
         }
 
         // Move left
-        if (Input.GetKey(KeyCode.A))
+        //if (Input.GetKey(KeyCode.A))
         {
             transform.Translate(Vector3.left * moveSpeed * Time.deltaTime);
         }
 
         // Move right
-        if (Input.GetKey(KeyCode.D))
+        //if (Input.GetKey(KeyCode.D))
         {
             transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
         }
 
         // Turn left
-        if (Input.GetKey(KeyCode.Q))
+        if (Input.GetKey(KeyCode.A))
         {
             transform.Rotate(Vector3.down * turnSpeed * Time.deltaTime);
         }
 
         // Turn right
-        if (Input.GetKey(KeyCode.E))
+        if (Input.GetKey(KeyCode.D))
         {
             transform.Rotate(Vector3.up * turnSpeed * Time.deltaTime);
         }
