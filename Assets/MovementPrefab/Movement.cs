@@ -92,7 +92,7 @@ public class Movement : MonoBehaviour
         if (other.tag == "SpeedBoost")
         {
             boosting = true;
-            speed = moveSpeed * 2;
+            speed = moveSpeed * 3;
         }
     }
 
