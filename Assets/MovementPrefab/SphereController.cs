@@ -99,11 +99,6 @@ public class SphereController : MonoBehaviour
     }
 }
 
-
-
-
-
-
     void CheckGround()
     {
         // Check if the sphere is on the ground
