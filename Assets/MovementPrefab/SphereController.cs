@@ -82,26 +82,24 @@ public class SphereController : MonoBehaviour
         cameraTransform.right = new Vector3(cameraTransform.right.x, 0, cameraTransform.right.z).normalized;
     }
 
-    void RotateCamera()
+   void RotateCamera()
 {
     if (cameraTransform != null)
     {
         currentAngleHorizontal += Input.GetAxis("Mouse X") * cameraSensitivity * Time.deltaTime;
         currentAngleVertical -= Input.GetAxis("Mouse Y") * cameraSensitivity * Time.deltaTime;
+        currentAngleVertical = Mathf.Clamp(currentAngleVertical, 270f, 360f);
 
-        // Restrict the vertical angle to prevent the camera from going over the top
-        // Adjust the min and max values as needed to restrict the camera's vertical movement
-        float minVerticalAngle = -30f; // Minimum vertical angle
-        float maxVerticalAngle = 90f;  // Maximum vertical angle
-        currentAngleVertical = Mathf.Clamp(currentAngleVertical, minVerticalAngle, maxVerticalAngle);
-
-        Quaternion rotation = Quaternion.Euler(currentAngleVertical, currentAngleHorizontal, 0);
+        // Invert the horizontal angle to position the camera on the opposite side
+        Quaternion rotation = Quaternion.Euler(currentAngleVertical, currentAngleHorizontal + 180f, 0);
         rotation = Quaternion.Normalize(rotation);
-        
+
         cameraTransform.position = transform.position + rotation * (cameraOffset * cameraDistanceScale);
         cameraTransform.LookAt(transform.position);
     }
 }
+
+
 
 
 
