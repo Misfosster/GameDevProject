@@ -29,46 +29,38 @@ public class Movement : MonoBehaviour
     void Update()
     {
         // Move forward
-        if (Input.GetKey(KeyCode.W))
-        {
+        if (Input.GetKey(KeyCode.W)){
             transform.Translate(Vector3.forward * speed * Time.deltaTime);
         }
 
         // Move backward
-        if (Input.GetKey(KeyCode.S))
-        {
+        if (Input.GetKey(KeyCode.S)){
             transform.Translate(Vector3.back * moveSpeed * Time.deltaTime);
         }
 
         // Move left
-        if (Input.GetKey(KeyCode.A))
-        {
+        if (Input.GetKey(KeyCode.A)){
             transform.Translate(Vector3.left * moveSpeed * Time.deltaTime);
         }
 
         // Move right
-        if (Input.GetKey(KeyCode.D))
-        {
+        if (Input.GetKey(KeyCode.D)){
             transform.Translate(Vector3.right * moveSpeed * Time.deltaTime);
         }
 
         // Turn left
-        if (Input.GetKey(KeyCode.Q))
-        {
+        if (Input.GetKey(KeyCode.Q)){
             transform.Rotate(Vector3.down * turnSpeed * Time.deltaTime);
         }
 
         // Turn right
-        if (Input.GetKey(KeyCode.E))
-        {
+        if (Input.GetKey(KeyCode.E)){
             transform.Rotate(Vector3.up * turnSpeed * Time.deltaTime);
         }
 
         // Jump
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if (timeSinceJump > jumpCooldown)
-            {
+        if (Input.GetKeyDown(KeyCode.Space)){
+            if (timeSinceJump > jumpCooldown){
                 rb.AddForce(Vector3.up * jumpHeight, ForceMode.Impulse);
                 timeSinceJump = 0f; // Reset the cooldown timer
             }
@@ -76,23 +68,32 @@ public class Movement : MonoBehaviour
 
         timeSinceJump += Time.deltaTime;
 
-        if (boosting)
-        {
+        if (boosting){
             boostTimer += Time.deltaTime;
-            if (boostTimer >= 3)
-            {
+            if (boostTimer >= 3){
                 speed = moveSpeed;
                 boostTimer = 0;
                 boosting = false;
             }
         }
     }
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.tag == "SpeedBoost")
-        {
+    void OnTriggerEnter(Collider other){
+        if (other.tag == "SpeedBoost"){
             boosting = true;
             speed = moveSpeed * 3;
+        }
+    }
+
+ // Function to set the player's position to a checkpoint
+    public void SetCheckpointPosition(Vector3 checkpointPosition){
+        rb.velocity = Vector3.zero; // Reset the player's velocity
+        transform.position = checkpointPosition; // Set player position to checkpoint
+    }
+
+    // Function to check if the player has fallen below a certain y-position
+    public void CheckYPosition(float yThreshold, Vector3 checkpointPosition){
+        if (transform.position.y < yThreshold){
+            SetCheckpointPosition(checkpointPosition);
         }
     }
 
