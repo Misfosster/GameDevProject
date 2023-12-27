@@ -7,6 +7,7 @@ TagManager:
   - Wall
   - SpeedBoost
   - GM
+  - Enemy
   layers:
   - Default
   - TransparentFX

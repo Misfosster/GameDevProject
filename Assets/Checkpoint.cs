@@ -7,15 +7,15 @@ public class Checkpoint : MonoBehaviour
     [SerializeField] GameObject player;
     Vector3 vectorPoint;
 
-    Movement movementScript;
+    SphereController ms;
 
     private void Start(){
-        movementScript = player.GetComponent<Movement>();
+        ms = player.GetComponent<SphereController>();
     }
 
     private void OnTriggerEnter(Collider other){
         if (other.CompareTag("Player")){
-            movementScript.SetCheckpointPosition(transform.position);
+            ms.SetCheckpointPosition(transform.position);
         }
     }
 }

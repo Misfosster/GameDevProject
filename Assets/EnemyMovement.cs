@@ -6,13 +6,13 @@ using UnityEngine.AI;
 public class EnemyMovement : MonoBehaviour{
     private NavMeshAgent navMeshAgent;
     public Transform Player;
-    private float aggroRange = 15f; 
+    private float aggroRange = 23f; 
     
-    Movement playerMovement; // Reference to the player's Movement script
+    SphereController pm; // Reference to the player's Movement script
 
     void Start(){
         navMeshAgent = GetComponent<NavMeshAgent>();
-        playerMovement = Player.GetComponent<Movement>(); // Get the player's Movement script
+        pm = Player.GetComponent<SphereController>(); // Get the player's Movement script
     }
 
     void Update(){
@@ -30,7 +30,7 @@ public class EnemyMovement : MonoBehaviour{
         if (collision.gameObject.CompareTag("Player"))
         {
             Vector3 checkpointPosition = transform.position; // Get enemy position as a checkpoint
-            playerMovement.SetCheckpointPosition(checkpointPosition);
+            pm.SetCheckpointPosition(checkpointPosition);
         }
     }
 }

@@ -128,5 +128,27 @@ public class SphereController : MonoBehaviour
         cameraTransform.position = hit.point - cameraTransform.forward * 0.2f; // Adjust the offset from the obstacle
     }
 }
+ void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            Vector3 checkpointPosition = collision.gameObject.transform.position; // Get enemy position as a checkpoint
+            SetCheckpointPosition(checkpointPosition);
+        }
+    }
+
+ // Function to set the player's position to a checkpoint
+    public void SetCheckpointPosition(Vector3 checkpointPosition){
+        rb.velocity = Vector3.zero; // Reset the player's velocity
+        transform.position = checkpointPosition; // Set player position to checkpoint
+    }
+
+    // Function to check if the player has fallen below a certain y-position
+    public void CheckYPosition(float yThreshold, Vector3 checkpointPosition){
+        if (transform.position.y < yThreshold){
+            SetCheckpointPosition(checkpointPosition);
+        }
+    }
+    
 
 }
