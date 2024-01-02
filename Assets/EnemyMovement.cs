@@ -27,10 +27,9 @@ public class EnemyMovement : MonoBehaviour{
 
     // Call this method when the enemy collides with the player
     private void OnCollisionEnter(Collision collision){
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            Vector3 checkpointPosition = transform.position; // Get enemy position as a checkpoint
-            pm.SetCheckpointPosition(checkpointPosition);
-        }
+        if (collision.gameObject.CompareTag("Player")){
+            Vector3 checkpointPosition = collision.gameObject.transform.position; // Get player's position as a checkpoint
+            pm.SetCheckpointPosition(checkpointPosition); // Assuming 'playerMovement' is a reference to the player's movement script
+        }    
     }
 }

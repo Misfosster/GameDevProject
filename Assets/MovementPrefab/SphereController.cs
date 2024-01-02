@@ -18,6 +18,8 @@ public class SphereController : MonoBehaviour
     private float currentAngleVertical = 0.0f;
     private bool isGrounded;
 
+    Vector3 checkpointPosition = Vector3.zero; // The player's last checkpoint position
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -34,7 +36,13 @@ public class SphereController : MonoBehaviour
         RotateCamera();
         CheckGround();
         HandleJump();
+
+        if (Input.GetKeyDown(KeyCode.R)){
+            ResetToCheckpoint();
+        }
     }
+
+    
 
     void FixedUpdate()
     {
@@ -138,10 +146,27 @@ public class SphereController : MonoBehaviour
     }
 
  // Function to set the player's position to a checkpoint
-    public void SetCheckpointPosition(Vector3 checkpointPosition){
-        rb.velocity = Vector3.zero; // Reset the player's velocity
-        transform.position = checkpointPosition; // Set player position to checkpoint
+    public void SetCheckpointPosition(Vector3 checkpointPos){
+        //rb.velocity = Vector3.zero; // Reset the player's velocity
+        checkpointPosition = checkpointPos; // Update the checkpoint position
+    
     }
+
+    void ResetToCheckpoint(){
+
+        if(checkpointPosition != Vector3.zero){
+            transform.position = checkpointPosition;
+        } else {
+            Debug.LogWarning("No checkpoint set!");
+        }
+        // Reset the player's position to the last checkpoint
+        //Vector3 checkpointPosition = GetCheckpointPosition();
+        //SetCheckpointPosition(checkpointPosition);
+    }
+    
+    //Vector3 GetCheckpointPosition(){
+      //  return Vector3.zero;
+    //}
 
     // Function to check if the player has fallen below a certain y-position
     public void CheckYPosition(float yThreshold, Vector3 checkpointPosition){
