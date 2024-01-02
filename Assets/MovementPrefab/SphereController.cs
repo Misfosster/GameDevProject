@@ -9,7 +9,6 @@ public class SphereController : MonoBehaviour
     public Transform cameraTransform;
     public float jumpForce = 5.0f;
     public float jumpCooldown = 2.0f;
-    public LayerMask groundLayer;
     public LayerMask obstacleLayer;
     public float cameraDistanceScale = 1.0f;
 
@@ -20,6 +19,8 @@ public class SphereController : MonoBehaviour
     private float currentAngleHorizontal = 0.0f;
     private float currentAngleVertical = 0.0f;
     private float lastJumpTime = 0.0f;
+    public float groundCheckDistance = 1.6f;
+    public bool isGrounded = false;
 
     // Transformation variables
     private float flightSpeed = 20.0f;
@@ -46,6 +47,7 @@ public class SphereController : MonoBehaviour
 
     void Update()
     {
+        CheckIfGrounded();
         if (isTransformed)
         {
             HandleTransformedMovement();
@@ -63,9 +65,7 @@ public class SphereController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.R)){
             ResetToCheckpoint(checkpointPosition);
         }
-
         //Reset to checkpoint if player hits enemy
-
     }
     
     void FixedUpdate()
@@ -145,12 +145,19 @@ public class SphereController : MonoBehaviour
 
     void HandleJump()
     {
-        if (!isTransformed && Input.GetKeyDown(KeyCode.Space) && Time.time - lastJumpTime >= jumpCooldown)
+        if (!isTransformed && Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            lastJumpTime = Time.time;
         }
     }
+
+    void CheckIfGrounded()
+{
+    RaycastHit hit;
+    // Raycast downwards from the center of the object
+    isGrounded = Physics.Raycast(transform.position, -Vector3.up, out hit, groundCheckDistance);
+}
+
 
     void WallCheck()
     {
