@@ -21,7 +21,7 @@ public class JumpPad : MonoBehaviour
     {
         if (other.CompareTag("Player") && playerController != null) // Check if the player leaves the jump pad
         {
-            playerController.jumpForce /= jumpBoostMultiplier; // Reset the player's jump force
+            playerController.jumpForce /= jumpBoostMultiplier; // Reset the player's jump force by dividing it by the multiplier
             playerController = null;
         }
     }
