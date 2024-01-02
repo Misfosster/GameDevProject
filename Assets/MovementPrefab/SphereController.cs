@@ -69,10 +69,22 @@ public class SphereController : MonoBehaviour
     }
     
     void FixedUpdate()
+{
+    MoveSphere();
+    WallCheck();
+    ApplyCustomDownwardAcceleration();
+}
+
+void ApplyCustomDownwardAcceleration()
+{
+    if (!isGrounded && !isTransformed) // Check if the sphere is in the air
     {
-        MoveSphere();
-        WallCheck();
+        float extraDownwardAcceleration = 20.0f; // Additional downward acceleration
+        rb.AddForce(Vector3.down * extraDownwardAcceleration, ForceMode.Acceleration);
     }
+}
+
+
 
     void MoveSphere()
     {
