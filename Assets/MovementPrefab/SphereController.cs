@@ -13,6 +13,7 @@ public class SphereController : MonoBehaviour
     public LayerMask obstacleLayer;
     public float cameraDistanceScale = 1.0f;
 
+    public float minYPosition = -16f; // The minimum y-position before resetting to the checkpoint
     // Movement variables
     private Rigidbody rb;
     private Vector3 cameraOffset;
@@ -51,9 +52,22 @@ public class SphereController : MonoBehaviour
         }
         RotateCamera();
         HandleJump();
+
+        if (transform.position.y < minYPosition){
+            // Get the checkpoint position or any specific reset position
+
+            // Reset to the checkpoint position
+            ResetToCheckpoint(checkpointPosition);
+        }
+
+        if (Input.GetKeyDown(KeyCode.R)){
+            ResetToCheckpoint(checkpointPosition);
+        }
+
+        //Reset to checkpoint if player hits enemy
+
     }
     
-
     void FixedUpdate()
     {
         MoveSphere();
@@ -152,24 +166,18 @@ public class SphereController : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            SetCheckpointPosition(collision.gameObject.transform.position);
+            Vector3 checkpointPosition = GetCheckpointPosition();
+            ResetToCheckpoint(checkpointPosition);
         }
     }
-     public void SetCheckpointPosition(Vector3 checkpointPos)
-    {
-        checkpointPosition = checkpointPos;
+    
+ // Function to set the player's position to a checkpoint
+    public void SetCheckpointPosition(Vector3 checkpointPos){
+        checkpointPosition = checkpointPos; // Update the checkpoint position
     }
-    void CheckYPosition()
-    {
-        if (transform.position.y < yThreshold)
-        {
-            ResetToCheckpoint();
-        }
-    }
-    void ResetToCheckpoint()
-    {
-        if (checkpointPosition != Vector3.zero)
-        {
+
+    public void ResetToCheckpoint(Vector3 checkpointPosition){
+        if(checkpointPosition != Vector3.zero){
             transform.position = checkpointPosition;
         }
         else
@@ -178,6 +186,9 @@ public class SphereController : MonoBehaviour
         }
     }
 
+    public Vector3 GetCheckpointPosition(){
+        return checkpointPosition;
+    }
     public void SetTransformationState(bool state)
 {
     isTransformed = state;
