@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class SphereController : MonoBehaviour
 {
+    // Inspector variables
     public float acceleration = 20.0f;
     public float maxSpeed = 10.0f;
     public float cameraSensitivity = 100.0f;
@@ -12,16 +13,22 @@ public class SphereController : MonoBehaviour
     public LayerMask obstacleLayer;
     public float cameraDistanceScale = 1.0f;
 
+    // Movement variables
     private Rigidbody rb;
     private Vector3 cameraOffset;
     private float currentAngleHorizontal = 0.0f;
     private float currentAngleVertical = 0.0f;
-    private bool isTransformed = false;
     private float lastJumpTime = 0.0f;
 
+    // Transformation variables
+    private float flightSpeed = 20.0f;
+    private float descentSpeed = 20.0f;
     private float jumpSpeedMultiplier = 0.04f;
     private float downSpeedMultiplier = 0.04f;
+    private bool isTransformed = false;
 
+
+    // Checkpoint variables
     public float yThreshold = -10.0f;
     Vector3 checkpointPosition = Vector3.zero;
 
@@ -38,12 +45,14 @@ public class SphereController : MonoBehaviour
 
     void Update()
     {
-        if (!isTransformed)
+        if (isTransformed)
         {
-            RotateCamera();
-            HandleJump();
+            HandleTransformedMovement();
         }
+        RotateCamera();
+        HandleJump();
     }
+    
 
     void FixedUpdate()
     {
@@ -75,7 +84,31 @@ public class SphereController : MonoBehaviour
                 rb.AddForce(force, ForceMode.Acceleration);
             }
         }
+
     }
+    
+    void HandleTransformedMovement()
+    {
+        if (Input.GetKey(KeyCode.Space))
+        {
+            FlyUpwards();
+        }
+        else if (Input.GetKey(KeyCode.X))
+        {
+            Descend();
+        }
+    }
+
+    void FlyUpwards()
+    {
+        rb.AddForce(Vector3.up * flightSpeed, ForceMode.Acceleration);
+    }
+
+    void Descend()
+    {
+        rb.AddForce(Vector3.down * descentSpeed, ForceMode.Acceleration);
+    }
+
 
     void UpdateCameraVectors()
     {
@@ -144,5 +177,10 @@ public class SphereController : MonoBehaviour
             Debug.LogWarning("No checkpoint set!");
         }
     }
+
+    public void SetTransformationState(bool state)
+{
+    isTransformed = state;
+}
 
 }

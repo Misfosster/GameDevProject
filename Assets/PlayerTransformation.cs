@@ -25,17 +25,24 @@ public class PlayerTransformation : MonoBehaviour
         originalScale = transform.localScale;
     }
 
+    
     public void TriggerTransformation()
     {
-        if (!isTransforming) // Check if the transformation is not already active
+    if (!isTransforming)
+    {
+        StartCoroutine(ScaleOverTime(0.1f, 1f));
+        TransformPlayer();
+        transformationStartTime = Time.time;
+        isTransforming = true;
+
+        // Set the transformation state in SphereController
+        SphereController controller = GetComponent<SphereController>();
+        if (controller != null)
         {
-            StartCoroutine(ScaleOverTime(0.1f, 1f));
-            TransformPlayer();
-            transformationStartTime = Time.time;
-            isTransforming = true;
+            controller.SetTransformationState(true);
         }
     }
-
+    }
     void Update()
     {
         if (isTransforming && Time.time - transformationStartTime >= 20f)
@@ -66,15 +73,24 @@ public class PlayerTransformation : MonoBehaviour
         return playerMeshes[nextIndex];
     }
 
+
     private void RevertTransformation()
+{
+    StartCoroutine(ScaleOverTime(originalScale.x, 1f));
+    renderer.material = originalMaterial;
+    meshFilter.mesh = originalMesh;
+    rb.useGravity = true;
+    rb.constraints = RigidbodyConstraints.None;
+    isTransforming = false;
+
+    // Reset the transformation state in SphereController
+    SphereController controller = GetComponent<SphereController>();
+    if (controller != null)
     {
-        StartCoroutine(ScaleOverTime(originalScale.x, 1f)); // Scale back to original size
-        renderer.material = originalMaterial;
-        meshFilter.mesh = originalMesh;
-        rb.useGravity = true;
-        rb.constraints = RigidbodyConstraints.None;
-        isTransforming = false; // Transformation has been reverted
+        controller.SetTransformationState(false);
     }
+}
+
 
     private IEnumerator ScaleOverTime(float targetScale, float duration)
     {
