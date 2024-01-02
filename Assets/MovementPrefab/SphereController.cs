@@ -6,17 +6,23 @@ public class SphereController : MonoBehaviour
     public float maxSpeed = 10.0f;
     public float cameraSensitivity = 100.0f;
     public Transform cameraTransform;
-    public float jumpForce = 5.0f; // Jump force
-    public LayerMask groundLayer; // Layer used to identify the ground
-    public LayerMask obstacleLayer; // Layer used to identify obstacles
-    public float cameraDistanceScale = 1.0f; // Adjust this value to change the camera distance
-
+    public float jumpForce = 5.0f;
+    public float jumpCooldown = 2.0f; // Cooldown time in seconds
+    public LayerMask groundLayer;
+    public LayerMask obstacleLayer;
+    public float cameraDistanceScale = 1.0f;
 
     private Rigidbody rb;
     private Vector3 cameraOffset;
     private float currentAngleHorizontal = 0.0f;
     private float currentAngleVertical = 0.0f;
-    private bool isGrounded;
+    private bool isTransformed = false;
+    private bool unlocker = false;
+    private float lastJumpTime = 0.0f;
+
+    // Speed multipliers for jumping and going down
+    private float jumpSpeedMultiplier = 0.04f; // Default speed multiplier
+    private float downSpeedMultiplier = 0.04f; // Speed multiplier for going down
 
     void Start()
     {
@@ -31,16 +37,37 @@ public class SphereController : MonoBehaviour
 
     void Update()
     {
-        RotateCamera();
-        CheckGround();
-        HandleJump();
+        if (!isTransformed)
+        {
+            RotateCamera();
+            HandleJump();
+        }
+
+        if (Input.GetKey(KeyCode.T))
+        {
+            unlocker = true;
+        }
+        if (Input.GetKey(KeyCode.R))
+        {
+            unlocker = false;
+        }
+
+        if (unlocker && Input.GetKey(KeyCode.Space))
+        {
+            // Add an upward force with the adjusted multiplier
+            rb.AddForce(Vector3.up * jumpForce * jumpSpeedMultiplier, ForceMode.Impulse);
+        }
+
+        if (unlocker && Input.GetKey(KeyCode.X))
+        {
+            // Add a downward force with the adjusted multiplier
+            rb.AddForce(Vector3.down * jumpForce * downSpeedMultiplier, ForceMode.Impulse);
+        }
     }
 
     void FixedUpdate()
     {
-        if(isGrounded){
         MoveSphere();
-        }
         WallCheck();
     }
 
@@ -49,23 +76,18 @@ public class SphereController : MonoBehaviour
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
-        // Update camera vectors
         UpdateCameraVectors();
 
         Vector3 desiredDirection = (cameraTransform.forward * verticalInput + cameraTransform.right * horizontalInput).normalized;
 
-        // Decompose the current velocity into parallel and perpendicular components
         Vector3 velocityParallel = Vector3.Project(rb.velocity, desiredDirection);
         Vector3 velocityPerpendicular = rb.velocity - velocityParallel;
 
-        // Gradually reduce the perpendicular component
-        float perpendicularReductionFactor = 0.05f; // Adjust this value as needed
+        float perpendicularReductionFactor = 0.05f;
         velocityPerpendicular *= (1 - perpendicularReductionFactor);
 
-        // Set the new velocity
         rb.velocity = velocityParallel + velocityPerpendicular;
 
-        // Apply force in the desired direction
         if (horizontalInput != 0 || verticalInput != 0)
         {
             Vector3 force = desiredDirection * acceleration;
@@ -82,51 +104,39 @@ public class SphereController : MonoBehaviour
         cameraTransform.right = new Vector3(cameraTransform.right.x, 0, cameraTransform.right.z).normalized;
     }
 
-   void RotateCamera()
-{
-    if (cameraTransform != null)
+    void RotateCamera()
     {
-        currentAngleHorizontal += Input.GetAxis("Mouse X") * cameraSensitivity * Time.deltaTime;
-        currentAngleVertical -= Input.GetAxis("Mouse Y") * cameraSensitivity * Time.deltaTime;
-        currentAngleVertical = Mathf.Clamp(currentAngleVertical, 270f, 360f);
+        if (cameraTransform != null)
+        {
+            currentAngleHorizontal += Input.GetAxis("Mouse X") * cameraSensitivity * Time.deltaTime;
+            currentAngleVertical -= Input.GetAxis("Mouse Y") * cameraSensitivity * Time.deltaTime;
+            currentAngleVertical = Mathf.Clamp(currentAngleVertical, 270f, 360f);
 
-        // Invert the horizontal angle to position the camera on the opposite side
-        Quaternion rotation = Quaternion.Euler(currentAngleVertical, currentAngleHorizontal + 180f, 0);
-        rotation = Quaternion.Normalize(rotation);
+            Quaternion rotation = Quaternion.Euler(currentAngleVertical, currentAngleHorizontal + 180f, 0);
+            rotation = Quaternion.Normalize(rotation);
 
-        cameraTransform.position = transform.position + rotation * (cameraOffset * cameraDistanceScale);
-        cameraTransform.LookAt(transform.position);
-    }
-}
-
-    void CheckGround()
-    {
-        // Check if the sphere is on the ground
-        RaycastHit hit;
-        float distance = 1.7f; // Distance to check for the ground
-        isGrounded = Physics.Raycast(transform.position, -Vector3.up, out hit, distance, groundLayer);
+            cameraTransform.position = transform.position + rotation * (cameraOffset * cameraDistanceScale);
+            cameraTransform.LookAt(transform.position);
+        }
     }
 
     void HandleJump()
     {
-        // Jump if on the ground and Spacebar is pressed
-        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
+        if (!isTransformed && Input.GetKeyDown(KeyCode.Space) && (unlocker || Time.time - lastJumpTime >= jumpCooldown))
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            lastJumpTime = Time.time;
         }
     }
 
     void WallCheck()
-{
-    // Check for obstacles in front of the camera
-    RaycastHit hit;
-    float wallCheckDistance = cameraOffset.magnitude * cameraDistanceScale; // Adjust this value as needed
-
-    if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, wallCheckDistance, obstacleLayer))
     {
-        // If an obstacle is detected, adjust the camera's position to avoid it
-        cameraTransform.position = hit.point - cameraTransform.forward * 0.2f; // Adjust the offset from the obstacle
-    }
-}
+        RaycastHit hit;
+        float wallCheckDistance = cameraOffset.magnitude * cameraDistanceScale;
 
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, wallCheckDistance, obstacleLayer))
+        {
+            cameraTransform.position = hit.point - cameraTransform.forward * 0.2f;
+        }
+    }
 }

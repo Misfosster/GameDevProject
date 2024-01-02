@@ -1,46 +1,95 @@
+using System.Collections;
 using UnityEngine;
+
 public class PlayerTransformation : MonoBehaviour
-
 {
-    public Mesh[] playerMeshes;         // Assign the different meshes in the Inspector
-    public Material transformationMaterial; // Assign the material you want to transform into in the Inspector
+    public Mesh[] playerMeshes;
+    public Material transformationMaterial;
 
-    private MeshFilter meshFilter;       // Reference to the MeshFilter component
-    private Renderer renderer;           // Reference to the Renderer component
-    private Material originalMaterial;    // To store the original material
-    private Mesh originalMesh;           // To store the original mesh
+    private MeshFilter meshFilter;
+    private Renderer renderer;
+    private Material originalMaterial;
+    private Mesh originalMesh;
+    private Vector3 originalScale;
+    private bool isFirstTransformation = true;
+    private bool hasInstantScaled = false;
+    private bool isAutoReverting = false; // Track if auto-reverting is in progress
+    private float lastTKeyPressTime; // Record the time when "T" was last pressed
+    private Rigidbody rb;
 
     void Start()
     {
+        rb = GetComponent<Rigidbody>();
         meshFilter = GetComponent<MeshFilter>();
         renderer = GetComponent<Renderer>();
-
-        // Store the original material and mesh of the player object
         originalMaterial = renderer.material;
         originalMesh = meshFilter.sharedMesh;
+        originalScale = transform.localScale;
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.T))
+        if (IsOnWater() && Input.GetKeyDown(KeyCode.T))
         {
+            lastTKeyPressTime = Time.time; // Record the time when "T" is pressed
+
+            if (isFirstTransformation && !hasInstantScaled)
+            {
+                transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+                hasInstantScaled = true;
+            }
+            else
+            {
+                StartCoroutine(ScaleOverTime(0.1f, 1f));
+            }
+
             TransformPlayer();
+        }
+        else if (isAutoReverting)
+        {
+            // Auto-revert 20 seconds after "T" was pressed
+            float timePassed = Time.time - lastTKeyPressTime;
+            if (timePassed >= 20f)
+            {
+                StartCoroutine(ScaleOverTime(originalScale.x, 1f));
+                RevertTransformation();
+                isAutoReverting = false;
+            }
         }
         else if (Input.GetKeyDown(KeyCode.R))
         {
+            StartCoroutine(ScaleOverTime(originalScale.x, 1f));
             RevertTransformation();
+
+            // Start the auto-reverting process
+            isAutoReverting = true;
         }
+    }
+
+    bool IsOnWater()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit))
+        {
+            if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Water"))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     void TransformPlayer()
     {
         if (transformationMaterial != null && playerMeshes.Length > 0)
         {
-            // Change the material of the player object
             renderer.material = transformationMaterial;
-
-            // Change the mesh of the player object
             meshFilter.mesh = GetNextMesh();
+            if (rb != null)
+            {
+                rb.useGravity = false;
+                rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+            }
         }
         else
         {
@@ -50,20 +99,34 @@ public class PlayerTransformation : MonoBehaviour
 
     Mesh GetNextMesh()
     {
-        // Find the current mesh index
         int currentIndex = System.Array.IndexOf(playerMeshes, meshFilter.sharedMesh);
-
-        // Get the next mesh in the array
         int nextIndex = (currentIndex + 1) % playerMeshes.Length;
-
-        // Return the next mesh
         return playerMeshes[nextIndex];
     }
 
-    // To revert the transformation and restore the original material and mesh
     void RevertTransformation()
     {
         renderer.material = originalMaterial;
         meshFilter.mesh = originalMesh;
+        rb.useGravity = true;
+        rb.constraints &= ~RigidbodyConstraints.FreezeRotationX;
+        rb.constraints &= ~RigidbodyConstraints.FreezeRotationY;
+        rb.constraints &= ~RigidbodyConstraints.FreezeRotationZ;
+    }
+
+    private IEnumerator ScaleOverTime(float targetScale, float duration)
+    {
+        Vector3 originalScale = transform.localScale;
+        Vector3 target = new Vector3(targetScale, targetScale, targetScale);
+        float elapsedTime = 0f;
+
+        while (elapsedTime < duration)
+        {
+            transform.localScale = Vector3.Lerp(originalScale, target, elapsedTime / duration);
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.localScale = target;
     }
 }
