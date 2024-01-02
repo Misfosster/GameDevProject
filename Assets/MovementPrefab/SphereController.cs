@@ -12,6 +12,8 @@ public class SphereController : MonoBehaviour
     public LayerMask obstacleLayer;
     public float cameraDistanceScale = 1.0f;
 
+    private EnemyMovement em; // Reference to the enemy's Movement script
+
     public float minYPosition = -16f; // The minimum y-position before resetting to the checkpoint
     // Movement variables
     private Rigidbody rb;
@@ -36,6 +38,7 @@ public class SphereController : MonoBehaviour
 
     void Start()
     {
+        em = GameObject.FindGameObjectWithTag("Enemy").GetComponent<EnemyMovement>(); // Get the enemy's Movement script
         rb = GetComponent<Rigidbody>();
         if (cameraTransform != null)
         {
@@ -67,7 +70,7 @@ public class SphereController : MonoBehaviour
         }
         //Reset to checkpoint if player hits enemy
     }
-    
+
     void FixedUpdate()
 {
     MoveSphere();
@@ -202,6 +205,9 @@ void ApplyCustomDownwardAcceleration()
         else
         {
             Debug.LogWarning("No checkpoint set!");
+        }
+        if(em != null){
+            em.ResetToSpawn();
         }
     }
 
