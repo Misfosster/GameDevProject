@@ -7,7 +7,7 @@ public class SphereController : MonoBehaviour
     public float cameraSensitivity = 100.0f;
     public Transform cameraTransform;
     public float jumpForce = 5.0f;
-    public float jumpCooldown = 2.0f; // Cooldown time in seconds
+    public float jumpCooldown = 2.0f;
     public LayerMask groundLayer;
     public LayerMask obstacleLayer;
     public float cameraDistanceScale = 1.0f;
@@ -17,14 +17,14 @@ public class SphereController : MonoBehaviour
     private float currentAngleHorizontal = 0.0f;
     private float currentAngleVertical = 0.0f;
     private bool isTransformed = false;
-    private bool unlocker = false;
     private float lastJumpTime = 0.0f;
 
-    // Speed multipliers for jumping and going down
-    private float jumpSpeedMultiplier = 0.04f; // Default speed multiplier
-    private float downSpeedMultiplier = 0.04f; // Speed multiplier for going down
+    private float jumpSpeedMultiplier = 0.04f;
+    private float downSpeedMultiplier = 0.04f;
 
-    Vector3 checkpointPosition = Vector3.zero; // The player's last checkpoint position
+    public float yThreshold = -10.0f;
+    Vector3 checkpointPosition = Vector3.zero;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -43,30 +43,7 @@ public class SphereController : MonoBehaviour
             RotateCamera();
             HandleJump();
         }
-
-        if (Input.GetKey(KeyCode.T))
-        {
-            unlocker = true;
-        }
-        if (Input.GetKey(KeyCode.R))
-        {
-            unlocker = false;
-        }
-
-        if (unlocker && Input.GetKey(KeyCode.Space))
-        {
-            // Add an upward force with the adjusted multiplier
-            rb.AddForce(Vector3.up * jumpForce * jumpSpeedMultiplier, ForceMode.Impulse);
-        }
-
-        if (unlocker && Input.GetKey(KeyCode.X))
-        {
-            // Add a downward force with the adjusted multiplier
-            rb.AddForce(Vector3.down * jumpForce * downSpeedMultiplier, ForceMode.Impulse);
-        }
     }
-
-    
 
     void FixedUpdate()
     {
@@ -82,7 +59,6 @@ public class SphereController : MonoBehaviour
         UpdateCameraVectors();
 
         Vector3 desiredDirection = (cameraTransform.forward * verticalInput + cameraTransform.right * horizontalInput).normalized;
-
         Vector3 velocityParallel = Vector3.Project(rb.velocity, desiredDirection);
         Vector3 velocityPerpendicular = rb.velocity - velocityParallel;
 
@@ -109,23 +85,20 @@ public class SphereController : MonoBehaviour
 
     void RotateCamera()
     {
-        if (cameraTransform != null)
-        {
-            currentAngleHorizontal += Input.GetAxis("Mouse X") * cameraSensitivity * Time.deltaTime;
-            currentAngleVertical -= Input.GetAxis("Mouse Y") * cameraSensitivity * Time.deltaTime;
-            currentAngleVertical = Mathf.Clamp(currentAngleVertical, 270f, 360f);
+        currentAngleHorizontal += Input.GetAxis("Mouse X") * cameraSensitivity * Time.deltaTime;
+        currentAngleVertical -= Input.GetAxis("Mouse Y") * cameraSensitivity * Time.deltaTime;
+        currentAngleVertical = Mathf.Clamp(currentAngleVertical, 270f, 360f);
 
-            Quaternion rotation = Quaternion.Euler(currentAngleVertical, currentAngleHorizontal + 180f, 0);
-            rotation = Quaternion.Normalize(rotation);
+        Quaternion rotation = Quaternion.Euler(currentAngleVertical, currentAngleHorizontal + 180f, 0);
+        rotation = Quaternion.Normalize(rotation);
 
-            cameraTransform.position = transform.position + rotation * (cameraOffset * cameraDistanceScale);
-            cameraTransform.LookAt(transform.position);
-        }
+        cameraTransform.position = transform.position + rotation * (cameraOffset * cameraDistanceScale);
+        cameraTransform.LookAt(transform.position);
     }
 
     void HandleJump()
     {
-        if (!isTransformed && Input.GetKeyDown(KeyCode.Space) && (unlocker || Time.time - lastJumpTime >= jumpCooldown))
+        if (!isTransformed && Input.GetKeyDown(KeyCode.Space) && Time.time - lastJumpTime >= jumpCooldown)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             lastJumpTime = Time.time;
@@ -142,43 +115,34 @@ public class SphereController : MonoBehaviour
             cameraTransform.position = hit.point - cameraTransform.forward * 0.2f;
         }
     }
-
- void OnCollisionEnter(Collision collision)
+    void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            Vector3 checkpointPosition = collision.gameObject.transform.position; // Get enemy position as a checkpoint
-            SetCheckpointPosition(checkpointPosition);
+            SetCheckpointPosition(collision.gameObject.transform.position);
         }
     }
-
- // Function to set the player's position to a checkpoint
-    public void SetCheckpointPosition(Vector3 checkpointPos){
-        //rb.velocity = Vector3.zero; // Reset the player's velocity
-        checkpointPosition = checkpointPos; // Update the checkpoint position
-    
+     public void SetCheckpointPosition(Vector3 checkpointPos)
+    {
+        checkpointPosition = checkpointPos;
     }
-
-    void ResetToCheckpoint(){
-
-        if(checkpointPosition != Vector3.zero){
+    void CheckYPosition()
+    {
+        if (transform.position.y < yThreshold)
+        {
+            ResetToCheckpoint();
+        }
+    }
+    void ResetToCheckpoint()
+    {
+        if (checkpointPosition != Vector3.zero)
+        {
             transform.position = checkpointPosition;
-        } else {
+        }
+        else
+        {
             Debug.LogWarning("No checkpoint set!");
         }
-        // Reset the player's position to the last checkpoint
-        //Vector3 checkpointPosition = GetCheckpointPosition();
-        //SetCheckpointPosition(checkpointPosition);
     }
-    
-    //Vector3 GetCheckpointPosition(){
-      //  return Vector3.zero;
-    //}
 
-    // Function to check if the player has fallen below a certain y-position
-    public void CheckYPosition(float yThreshold, Vector3 checkpointPosition){
-        if (transform.position.y < yThreshold){
-            SetCheckpointPosition(checkpointPosition);
-        }
-    }
 }

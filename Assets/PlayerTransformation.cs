@@ -11,10 +11,8 @@ public class PlayerTransformation : MonoBehaviour
     private Material originalMaterial;
     private Mesh originalMesh;
     private Vector3 originalScale;
-    private bool isFirstTransformation = true;
-    private bool hasInstantScaled = false;
-    private bool isAutoReverting = false; // Track if auto-reverting is in progress
-    private float lastTKeyPressTime; // Record the time when "T" was last pressed
+    private bool isTransforming = false;
+    private float transformationStartTime;
     private Rigidbody rb;
 
     void Start()
@@ -27,69 +25,33 @@ public class PlayerTransformation : MonoBehaviour
         originalScale = transform.localScale;
     }
 
+    public void TriggerTransformation()
+    {
+        if (!isTransforming) // Check if the transformation is not already active
+        {
+            StartCoroutine(ScaleOverTime(0.1f, 1f));
+            TransformPlayer();
+            transformationStartTime = Time.time;
+            isTransforming = true;
+        }
+    }
+
     void Update()
     {
-        if (IsOnWater() && Input.GetKeyDown(KeyCode.T))
+        if (isTransforming && Time.time - transformationStartTime >= 20f)
         {
-            lastTKeyPressTime = Time.time; // Record the time when "T" is pressed
-
-            if (isFirstTransformation && !hasInstantScaled)
-            {
-                transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-                hasInstantScaled = true;
-            }
-            else
-            {
-                StartCoroutine(ScaleOverTime(0.1f, 1f));
-            }
-
-            TransformPlayer();
-        }
-        else if (isAutoReverting)
-        {
-            // Auto-revert 20 seconds after "T" was pressed
-            float timePassed = Time.time - lastTKeyPressTime;
-            if (timePassed >= 20f)
-            {
-                StartCoroutine(ScaleOverTime(originalScale.x, 1f));
-                RevertTransformation();
-                isAutoReverting = false;
-            }
-        }
-        else if (Input.GetKeyDown(KeyCode.R))
-        {
-            StartCoroutine(ScaleOverTime(originalScale.x, 1f));
             RevertTransformation();
-
-            // Start the auto-reverting process
-            isAutoReverting = true;
         }
     }
 
-    bool IsOnWater()
-    {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit))
-        {
-            if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Water"))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    void TransformPlayer()
+    private void TransformPlayer()
     {
         if (transformationMaterial != null && playerMeshes.Length > 0)
         {
             renderer.material = transformationMaterial;
             meshFilter.mesh = GetNextMesh();
-            if (rb != null)
-            {
-                rb.useGravity = false;
-                rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
-            }
+            rb.useGravity = false;
+            rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
         }
         else
         {
@@ -97,21 +59,21 @@ public class PlayerTransformation : MonoBehaviour
         }
     }
 
-    Mesh GetNextMesh()
+    private Mesh GetNextMesh()
     {
         int currentIndex = System.Array.IndexOf(playerMeshes, meshFilter.sharedMesh);
         int nextIndex = (currentIndex + 1) % playerMeshes.Length;
         return playerMeshes[nextIndex];
     }
 
-    void RevertTransformation()
+    private void RevertTransformation()
     {
+        StartCoroutine(ScaleOverTime(originalScale.x, 1f)); // Scale back to original size
         renderer.material = originalMaterial;
         meshFilter.mesh = originalMesh;
         rb.useGravity = true;
-        rb.constraints &= ~RigidbodyConstraints.FreezeRotationX;
-        rb.constraints &= ~RigidbodyConstraints.FreezeRotationY;
-        rb.constraints &= ~RigidbodyConstraints.FreezeRotationZ;
+        rb.constraints = RigidbodyConstraints.None;
+        isTransforming = false; // Transformation has been reverted
     }
 
     private IEnumerator ScaleOverTime(float targetScale, float duration)
