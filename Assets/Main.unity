@@ -37267,7 +37267,7 @@ MonoBehaviour:
   maxSpeed: 10
   cameraSensitivity: 200
   cameraTransform: {fileID: 134021608}
-  jumpForce: 20
+  jumpForce: 200
   jumpCooldown: 2
   obstacleLayer:
     serializedVersion: 2
