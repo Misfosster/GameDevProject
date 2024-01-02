@@ -8,7 +8,7 @@ public class EnemyMovement : MonoBehaviour{
     public Transform Player;
     private float aggroRange = 23f; 
     
-    SphereController pm; // Reference to the player's Movement script
+    private SphereController pm; // Reference to the player's Movement script
 
     void Start(){
         navMeshAgent = GetComponent<NavMeshAgent>();
@@ -26,10 +26,20 @@ public class EnemyMovement : MonoBehaviour{
     }
 
     // Call this method when the enemy collides with the player
-    private void OnCollisionEnter(Collision collision){
-        if (collision.gameObject.CompareTag("Player")){
-            Vector3 checkpointPosition = collision.gameObject.transform.position; // Get player's position as a checkpoint
-            pm.SetCheckpointPosition(checkpointPosition); // Assuming 'playerMovement' is a reference to the player's movement script
+    private void OnTriggerEnter(Collider other){
+        if (other.gameObject.CompareTag("Player")){
+            // Get the player's SphereController script
+            pm = other.gameObject.GetComponent<SphereController>(); // Get the player's Movement script
+
+            if(pm != null){
+                // Get the player's checkpoint position
+                Vector3 checkpointPosition = pm.GetCheckpointPosition(); 
+            
+                // Reset the player to the retrieved checkpoint position
+                pm.ResetToCheckpoint(checkpointPosition); 
+            } else {
+                Debug.Log("SphereController not found");
+            }
         }    
     }
 }

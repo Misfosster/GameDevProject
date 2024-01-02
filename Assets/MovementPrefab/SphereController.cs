@@ -161,7 +161,7 @@ public class SphereController : MonoBehaviour
         checkpointPosition = checkpointPos; // Update the checkpoint position
     }
 
-    void ResetToCheckpoint(Vector3 checkpointPosition){
+    public void ResetToCheckpoint(Vector3 checkpointPosition){
         if(checkpointPosition != Vector3.zero){
             transform.position = checkpointPosition;
         } else {
@@ -169,9 +169,7 @@ public class SphereController : MonoBehaviour
         }
     }
 
-    Vector3 GetCheckpointPosition()
-    {
-        // Example: You might retrieve a stored checkpoint position or use a default value
-        return Vector3.zero; // Defaulting to Vector3.zero for illustration
+    public Vector3 GetCheckpointPosition(){
+        return checkpointPosition;
     }
 }
