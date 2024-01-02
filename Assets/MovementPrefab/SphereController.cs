@@ -50,9 +50,7 @@ public class SphereController : MonoBehaviour
         }
 
         //Reset to checkpoint if player hits enemy
-        
 
-        
     }
 
     
@@ -158,8 +156,6 @@ public class SphereController : MonoBehaviour
         }
     }
     
-
-
  // Function to set the player's position to a checkpoint
     public void SetCheckpointPosition(Vector3 checkpointPos){
         checkpointPosition = checkpointPos; // Update the checkpoint position
@@ -178,14 +174,4 @@ public class SphereController : MonoBehaviour
         // Example: You might retrieve a stored checkpoint position or use a default value
         return Vector3.zero; // Defaulting to Vector3.zero for illustration
     }
-    // Function to check if the player has fallen below a certain y-position
-    /*
-    public void CheckYPosition(float yThreshold, Vector3 checkpointPosition){
-        if (transform.position.y < yThreshold){
-            SetCheckpointPosition(checkpointPosition);
-        }
-    }
-    */
-    
-
 }
