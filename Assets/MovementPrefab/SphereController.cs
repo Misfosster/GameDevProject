@@ -11,6 +11,7 @@ public class SphereController : MonoBehaviour
     public LayerMask obstacleLayer; // Layer used to identify obstacles
     public float cameraDistanceScale = 1.0f; // Adjust this value to change the camera distance
 
+    public float minYPosition = -16f; // The minimum y-position before resetting to the checkpoint
 
     private Rigidbody rb;
     private Vector3 cameraOffset;
@@ -37,13 +38,24 @@ public class SphereController : MonoBehaviour
         CheckGround();
         HandleJump();
 
-        if (Input.GetKeyDown(KeyCode.R)){
-            ResetToCheckpoint();
+        if (transform.position.y < minYPosition){
+            // Get the checkpoint position or any specific reset position
+
+            // Reset to the checkpoint position
+            ResetToCheckpoint(checkpointPosition);
         }
+
+        if (Input.GetKeyDown(KeyCode.R)){
+            ResetToCheckpoint(checkpointPosition);
+        }
+
+        //Reset to checkpoint if player hits enemy
+        
+
+        
     }
 
     
-
     void FixedUpdate()
     {
         if(isGrounded){
@@ -136,44 +148,44 @@ public class SphereController : MonoBehaviour
         cameraTransform.position = hit.point - cameraTransform.forward * 0.2f; // Adjust the offset from the obstacle
     }
 }
+
  void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Enemy"))
         {
-            Vector3 checkpointPosition = collision.gameObject.transform.position; // Get enemy position as a checkpoint
-            SetCheckpointPosition(checkpointPosition);
+            Vector3 checkpointPosition = GetCheckpointPosition();
+            ResetToCheckpoint(checkpointPosition);
         }
     }
+    
+
 
  // Function to set the player's position to a checkpoint
     public void SetCheckpointPosition(Vector3 checkpointPos){
-        //rb.velocity = Vector3.zero; // Reset the player's velocity
         checkpointPosition = checkpointPos; // Update the checkpoint position
-    
     }
 
-    void ResetToCheckpoint(){
-
+    void ResetToCheckpoint(Vector3 checkpointPosition){
         if(checkpointPosition != Vector3.zero){
             transform.position = checkpointPosition;
         } else {
             Debug.LogWarning("No checkpoint set!");
         }
-        // Reset the player's position to the last checkpoint
-        //Vector3 checkpointPosition = GetCheckpointPosition();
-        //SetCheckpointPosition(checkpointPosition);
     }
-    
-    //Vector3 GetCheckpointPosition(){
-      //  return Vector3.zero;
-    //}
 
+    Vector3 GetCheckpointPosition()
+    {
+        // Example: You might retrieve a stored checkpoint position or use a default value
+        return Vector3.zero; // Defaulting to Vector3.zero for illustration
+    }
     // Function to check if the player has fallen below a certain y-position
+    /*
     public void CheckYPosition(float yThreshold, Vector3 checkpointPosition){
         if (transform.position.y < yThreshold){
             SetCheckpointPosition(checkpointPosition);
         }
     }
+    */
     
 
 }
