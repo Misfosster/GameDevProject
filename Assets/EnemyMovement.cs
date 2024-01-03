@@ -6,17 +6,20 @@ using UnityEngine.AI;
 
 public class EnemyMovement : MonoBehaviour{
     private NavMeshAgent navMeshAgent;
-
     private UnityEngine.Vector3 spawnPosition;
     public Transform Player;
     private float aggroRange = 23f; 
-    
     private SphereController pm; // Reference to the player's Movement script
+
+    public static List<EnemyMovement> allEnemies = new List<EnemyMovement>();
+
 
     void Start(){
         navMeshAgent = GetComponent<NavMeshAgent>();
         pm = Player.GetComponent<SphereController>(); // Get the player's Movement script
         spawnPosition = transform.position;
+
+        allEnemies.Add(this);
     }
 
     void Update(){
@@ -30,7 +33,9 @@ public class EnemyMovement : MonoBehaviour{
     }
 
     public void ResetToSpawn(){
-        transform.position = spawnPosition;
+        foreach (EnemyMovement enemy in allEnemies){
+            enemy.transform.position = enemy.spawnPosition;
+        }
     }
 
     // Call this method when the enemy collides with the player
@@ -45,6 +50,7 @@ public class EnemyMovement : MonoBehaviour{
             
                 // Reset the player to the retrieved checkpoint position
                 pm.ResetToCheckpoint(checkpointPosition); 
+                ResetToSpawn();
             } else {
                 Debug.Log("SphereController not found");
             }

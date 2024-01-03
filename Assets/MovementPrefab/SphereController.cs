@@ -38,7 +38,8 @@ public class SphereController : MonoBehaviour
 
     void Start()
     {
-        em = GameObject.FindGameObjectWithTag("Enemy").GetComponent<EnemyMovement>(); // Get the enemy's Movement script
+        em = GameObject.FindWithTag("Enemy").GetComponent<EnemyMovement>();
+        //em = GameObject.FindGameObjectWithTag("Enemy").GetComponent<EnemyMovement>(); // Get the enemy's Movement script
         rb = GetComponent<Rigidbody>();
         if (cameraTransform != null)
         {
