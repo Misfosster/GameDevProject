@@ -6,9 +6,10 @@ public class ScoreManager : MonoBehaviour
     public Text scoreText;
     public Text totalText;
     private float scoreCount = 1000f;  // Initial score value
-    private float totalCount = 500f;  // Initial score value
+    public float totalCount = 500f;  // Initial score value
     private float timeElapsed = 0f;
     public float subtractInterval = 1f;  // Time interval to subtract score
+    public int previd;
 
     void Update()
     {
@@ -44,7 +45,7 @@ public class ScoreManager : MonoBehaviour
    public void scoreReset(){
         scoreCount=1000f;
     }
-    void subtractTotal(float price){
+    public void subtractTotal(float price){
         totalCount-=price;
     }
     public void addTotal(){
@@ -53,5 +54,15 @@ public class ScoreManager : MonoBehaviour
 
     public void addScore(){
         scoreCount+=50f;
+    }
+
+    public float getTotal(){
+        return totalCount;
+    }
+    public void setCheckpointId(int checkid){
+        previd=checkid;
+    }
+    public int getCheckpointId(){
+        return previd;
     }
 }

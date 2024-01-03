@@ -6,6 +6,7 @@ public class Checkpoint : MonoBehaviour
 {
     [SerializeField] GameObject player;
     [SerializeField] GameObject canvas;
+    [SerializeField] int id;
     Vector3 vectorPoint;
 
     SphereController ms;
@@ -19,9 +20,12 @@ public class Checkpoint : MonoBehaviour
 
     private void OnTriggerEnter(Collider other){
         if (other.CompareTag("Player")){
-            sm.addTotal();
+            if(id!=sm.getCheckpointId())
+            {
+                sm.addTotal();
+            }
             sm.scoreReset();
-
+            sm.setCheckpointId(id);
             ms.SetCheckpointPosition(transform.position);
 
 
