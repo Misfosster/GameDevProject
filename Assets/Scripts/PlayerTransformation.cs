@@ -38,6 +38,10 @@ public class PlayerTransformation : MonoBehaviour
         {
             RevertTransformation();
         }
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            RevertTransformation();
+        }
     }
 
     // Public method to trigger transformation
@@ -45,7 +49,7 @@ public class PlayerTransformation : MonoBehaviour
     {
         if (!isTransforming)
         {
-            StartCoroutine(ScaleOverTime(0.1f, 1f));
+            ScaleTo(0.1f); // Instant scale to 1
             TransformPlayer();
             transformationStartTime = Time.time;
             isTransforming = true;
@@ -72,10 +76,10 @@ public class PlayerTransformation : MonoBehaviour
         }
     }
 
-    // Reverts the player to original state
+    // Reverts the player to the original state
     private void RevertTransformation()
     {
-        StartCoroutine(ScaleOverTime(originalScale.x, 1f));
+        ScaleTo(originalScale.x); // Instant scale to the original size
         renderer.material = originalMaterial;
         meshFilter.mesh = originalMesh;
         rb.useGravity = true;
@@ -86,21 +90,10 @@ public class PlayerTransformation : MonoBehaviour
         UpdateSphereControllerState(false);
     }
 
-    // Coroutine to scale the player over time
-    private IEnumerator ScaleOverTime(float targetScale, float duration)
+    // Instantly scales the player to the specified size
+    private void ScaleTo(float targetScale)
     {
-        Vector3 originalScale = transform.localScale;
-        Vector3 target = new Vector3(targetScale, targetScale, targetScale);
-        float elapsedTime = 0f;
-
-        while (elapsedTime < duration)
-        {
-            transform.localScale = Vector3.Lerp(originalScale, target, elapsedTime / duration);
-            elapsedTime += Time.deltaTime;
-            yield return null;
-        }
-
-        transform.localScale = target;
+        transform.localScale = new Vector3(targetScale, targetScale, targetScale);
     }
 
     // Gets the next mesh in the array
@@ -121,3 +114,5 @@ public class PlayerTransformation : MonoBehaviour
         }
     }
 }
+
+ 
