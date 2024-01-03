@@ -119,4 +119,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 3026903895316516170, guid: d3368f06c44e6bf40b81107a9bd43756, type: 3}
-  canvas: {fileID: 0}
+  canvas: {fileID: 487930388330830332, guid: 47a76a96874a2a14180c532513bf9d9f, type: 3}
