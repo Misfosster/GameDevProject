@@ -1,5 +1,7 @@
 using UnityEngine;
-
+using UnityEngine.UI;
+using System.Collections;
+using System.Collections.Generic;
 public class SphereController : MonoBehaviour
 {
     // Inspector variables for custom settings
@@ -15,6 +17,13 @@ public class SphereController : MonoBehaviour
     public float groundCheckDistance = 1.6f;
     public bool isGrounded = false;
 
+    //Resourcerbar
+    public Image EnergyBar;
+    public float Energy, MaxEnergy;
+    public float SpeedBoostCost;
+    public float ChargeRate;
+    private Coroutine recharge;
+    public bool boosting = false;
     // Private variables for internal logic
     private Rigidbody rb;
     private Vector3 cameraOffset;
@@ -49,7 +58,8 @@ public class SphereController : MonoBehaviour
         CheckIfGrounded();
         HandleJump();
         RotateCamera();
-
+        HandleBoosting();
+    
         if (isTransformed)
         {
             HandleTransformedMovement();
@@ -64,6 +74,10 @@ public class SphereController : MonoBehaviour
         {
             ResetToCheckpoint(checkpointPosition);
         }
+        
+        
+        
+        
     }
 
     void FixedUpdate()
@@ -92,6 +106,9 @@ public class SphereController : MonoBehaviour
         if (horizontalInput != 0 || verticalInput != 0)
         {
             Vector3 force = desiredDirection * acceleration;
+            
+            if(boosting) force *= 2f; // Double the force if boosting
+
             if (rb.velocity.magnitude < maxSpeed)
             {
                 rb.AddForce(force, ForceMode.Acceleration);
@@ -109,6 +126,41 @@ public class SphereController : MonoBehaviour
         {
             Descend();
         }
+    }
+
+    private void HandleBoosting(){
+    if(Input.GetKeyDown("left shift")){
+            boosting = true;
+        } else if(Input.GetKeyUp("left shift")) {
+            boosting = false;
+        }
+        if(!boosting){
+            maxSpeed = 10f;
+        }
+        if(boosting && Energy > 0){
+            
+            maxSpeed = 20f;
+            
+            Energy -= SpeedBoostCost * Time.deltaTime; ;
+            if(Energy < 0) Energy = 0; // Prevents energy from going below 0 
+            EnergyBar.fillAmount = Energy / MaxEnergy;
+
+            if(recharge != null) StopCoroutine(recharge); // Stop recharging energy when action is performed
+            recharge = StartCoroutine(RechargeEnergy()); // Start recharging energy
+
+        }
+    }
+    
+    private IEnumerator RechargeEnergy () {
+        yield return new WaitForSeconds (1f);
+        while (Energy < MaxEnergy) {
+            Energy += ChargeRate / 10f;
+            if(Energy > MaxEnergy) Energy = MaxEnergy; // Prevents energy from going over max
+            EnergyBar.fillAmount = Energy / MaxEnergy;
+            yield return new WaitForSeconds (0.1f);
+        
+        }
+        recharge = null;
     }
 
     private void FlyUpwards()
