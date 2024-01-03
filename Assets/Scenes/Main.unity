@@ -4985,6 +4985,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 434666658}
     m_Modifications:
     - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
+      propertyPath: id
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
       propertyPath: canvas
       value: 
       objectReference: {fileID: 1214646264}
@@ -7839,6 +7843,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 434666658}
     m_Modifications:
+    - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
+      propertyPath: id
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
       propertyPath: canvas
       value: 
@@ -12641,6 +12649,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 434666658}
     m_Modifications:
+    - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
+      propertyPath: id
+      value: 6
+      objectReference: {fileID: 0}
     - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
       propertyPath: canvas
       value: 
@@ -18321,6 +18333,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 434666658}
     m_Modifications:
+    - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
+      propertyPath: id
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
       propertyPath: canvas
       value: 
@@ -26709,6 +26725,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 434666658}
     m_Modifications:
+    - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
+      propertyPath: id
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
       propertyPath: canvas
       value: 
@@ -63578,6 +63598,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 434666658}
     m_Modifications:
+    - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
+      propertyPath: id
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 523813163578240872, guid: 4b2adeb3afac08e479f4b11dd8c94d62, type: 3}
       propertyPath: canvas
       value: 
