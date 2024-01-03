@@ -5,13 +5,13 @@ public class ScoreManager : MonoBehaviour
 {
     public Text scoreText;
     public Text totalText;
-    public float scoreCount = 1000f;  // Initial score value
+    private float scoreCount = 1000f;  // Initial score value
     private float totalCount = 500f;  // Initial score value
     private float timeElapsed = 0f;
     public float subtractInterval = 1f;  // Time interval to subtract score
 
     void Update()
-    {   
+    {
         // Update the time elapsed
         timeElapsed += Time.deltaTime;
 
@@ -41,13 +41,13 @@ public class ScoreManager : MonoBehaviour
     void totalHandler(){
         totalCount+=scoreCount;
     }
-    void scoreReset(){
+   public void scoreReset(){
         scoreCount=1000f;
     }
     void subtractTotal(float price){
         totalCount-=price;
     }
-    void addTotal(float currentScore){
+    public void addTotal(){
         totalCount+=scoreCount;
     }
 

@@ -118,6 +118,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   scoreText: {fileID: 5619823512229912397}
   totalText: {fileID: 4420644793635195394}
+  scoreCount: 1000
   subtractInterval: 1
 --- !u!1 &4540156374452912493
 GameObject:
@@ -247,7 +248,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9151155838198593536}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -255,7 +256,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -364.3, y: -166}
+  m_AnchoredPosition: {x: -364.3, y: -145.9}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &24110180932637094
