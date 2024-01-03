@@ -8,6 +8,7 @@ TagManager:
   - SpeedBoost
   - GM
   - Enemy
+  - EnergySphere
   layers:
   - Default
   - TransparentFX
