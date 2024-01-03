@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class SphereController : MonoBehaviour
 {
-    // Inspector variables
+    // Inspector variables for custom settings
     public float acceleration = 20.0f;
     public float maxSpeed = 10.0f;
     public float cameraSensitivity = 100.0f;
@@ -11,36 +11,31 @@ public class SphereController : MonoBehaviour
     public float jumpCooldown = 2.0f;
     public LayerMask obstacleLayer;
     public float cameraDistanceScale = 1.0f;
+    public float minYPosition = -16f; // Minimum y-position before reset
+    public float groundCheckDistance = 1.6f;
+    public bool isGrounded = false;
 
-    private EnemyMovement em; // Reference to the enemy's Movement script
-
-    public float minYPosition = -16f; // The minimum y-position before resetting to the checkpoint
-    // Movement variables
+    // Private variables for internal logic
     private Rigidbody rb;
     private Vector3 cameraOffset;
     private float currentAngleHorizontal = 0.0f;
     private float currentAngleVertical = 0.0f;
-    private float lastJumpTime = 0.0f;
-    public float groundCheckDistance = 1.6f;
-    public bool isGrounded = false;
-
-    // Transformation variables
-    private float flightSpeed = 20.0f;
-    private float descentSpeed = 20.0f;
-    private float jumpSpeedMultiplier = 0.04f;
-    private float downSpeedMultiplier = 0.04f;
+    private EnemyMovement em; // Reference to the enemy's movement script
     private bool isTransformed = false;
 
-
-    // Checkpoint variables
+    // Checkpoint related variables
     public float yThreshold = -10.0f;
-    Vector3 checkpointPosition = Vector3.zero;
+    private Vector3 checkpointPosition = Vector3.zero;
+
+    // Transformation specific variables
+    private float flightSpeed = 20.0f;
+    private float descentSpeed = 20.0f;
 
     void Start()
     {
-        em = GameObject.FindWithTag("Enemy").GetComponent<EnemyMovement>();
-        //em = GameObject.FindGameObjectWithTag("Enemy").GetComponent<EnemyMovement>(); // Get the enemy's Movement script
         rb = GetComponent<Rigidbody>();
+        em = GameObject.FindWithTag("Enemy").GetComponent<EnemyMovement>();
+
         if (cameraTransform != null)
         {
             cameraOffset = cameraTransform.position - transform.position + 5.0f * Vector3.up;
@@ -52,45 +47,33 @@ public class SphereController : MonoBehaviour
     void Update()
     {
         CheckIfGrounded();
+        HandleJump();
+        RotateCamera();
+
         if (isTransformed)
         {
             HandleTransformedMovement();
         }
-        RotateCamera();
-        HandleJump();
 
-        if (transform.position.y < minYPosition){
-            // Get the checkpoint position or any specific reset position
-
-            // Reset to the checkpoint position
+        if (transform.position.y < minYPosition)
+        {
             ResetToCheckpoint(checkpointPosition);
         }
 
-        if (Input.GetKeyDown(KeyCode.R)){
+        if (Input.GetKeyDown(KeyCode.R))
+        {
             ResetToCheckpoint(checkpointPosition);
         }
-        //Reset to checkpoint if player hits enemy
     }
 
     void FixedUpdate()
-{
-    MoveSphere();
-    WallCheck();
-    ApplyCustomDownwardAcceleration();
-}
-
-void ApplyCustomDownwardAcceleration()
-{
-    if (!isGrounded && !isTransformed) // Check if the sphere is in the air
     {
-        float extraDownwardAcceleration = 20.0f; // Additional downward acceleration
-        rb.AddForce(Vector3.down * extraDownwardAcceleration, ForceMode.Acceleration);
+        MoveSphere();
+        WallCheck();
+        ApplyCustomDownwardAcceleration();
     }
-}
 
-
-
-    void MoveSphere()
+    private void MoveSphere()
     {
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
@@ -114,10 +97,9 @@ void ApplyCustomDownwardAcceleration()
                 rb.AddForce(force, ForceMode.Acceleration);
             }
         }
-
     }
-    
-    void HandleTransformedMovement()
+
+    private void HandleTransformedMovement()
     {
         if (Input.GetKey(KeyCode.Space))
         {
@@ -129,24 +111,17 @@ void ApplyCustomDownwardAcceleration()
         }
     }
 
-    void FlyUpwards()
+    private void FlyUpwards()
     {
         rb.AddForce(Vector3.up * flightSpeed, ForceMode.Acceleration);
     }
 
-    void Descend()
+    private void Descend()
     {
         rb.AddForce(Vector3.down * descentSpeed, ForceMode.Acceleration);
     }
 
-
-    void UpdateCameraVectors()
-    {
-        cameraTransform.forward = new Vector3(cameraTransform.forward.x, 0, cameraTransform.forward.z).normalized;
-        cameraTransform.right = new Vector3(cameraTransform.right.x, 0, cameraTransform.right.z).normalized;
-    }
-
-    void RotateCamera()
+    private void RotateCamera()
     {
         currentAngleHorizontal += Input.GetAxis("Mouse X") * cameraSensitivity * Time.deltaTime;
         currentAngleVertical -= Input.GetAxis("Mouse Y") * cameraSensitivity * Time.deltaTime;
@@ -159,7 +134,15 @@ void ApplyCustomDownwardAcceleration()
         cameraTransform.LookAt(transform.position);
     }
 
-    void HandleJump()
+    private void UpdateCameraVectors()
+{
+    // Ensure the camera's forward and right vectors are horizontal (y component is zero)
+    cameraTransform.forward = new Vector3(cameraTransform.forward.x, 0, cameraTransform.forward.z).normalized;
+    cameraTransform.right = new Vector3(cameraTransform.right.x, 0, cameraTransform.right.z).normalized;
+}
+
+
+    private void HandleJump()
     {
         if (!isTransformed && Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
@@ -167,15 +150,13 @@ void ApplyCustomDownwardAcceleration()
         }
     }
 
-    void CheckIfGrounded()
-{
-    RaycastHit hit;
-    // Raycast downwards from the center of the object
-    isGrounded = Physics.Raycast(transform.position, -Vector3.up, out hit, groundCheckDistance);
-}
+    private void CheckIfGrounded()
+    {
+        RaycastHit hit;
+        isGrounded = Physics.Raycast(transform.position, -Vector3.up, out hit, groundCheckDistance);
+    }
 
-
-    void WallCheck()
+    private void WallCheck()
     {
         RaycastHit hit;
         float wallCheckDistance = cameraOffset.magnitude * cameraDistanceScale;
@@ -185,39 +166,47 @@ void ApplyCustomDownwardAcceleration()
             cameraTransform.position = hit.point - cameraTransform.forward * 0.2f;
         }
     }
-    void OnCollisionEnter(Collision collision)
+
+    private void ApplyCustomDownwardAcceleration()
     {
-        if (collision.gameObject.CompareTag("Enemy"))
+        if (!isGrounded && !isTransformed)
         {
-            Vector3 checkpointPosition = GetCheckpointPosition();
-            ResetToCheckpoint(checkpointPosition);
+            float extraDownwardAcceleration = 20.0f;
+            rb.AddForce(Vector3.down * extraDownwardAcceleration, ForceMode.Acceleration);
         }
     }
-    
- // Function to set the player's position to a checkpoint
-    public void SetCheckpointPosition(Vector3 checkpointPos){
-        checkpointPosition = checkpointPos; // Update the checkpoint position
+
+    public void SetCheckpointPosition(Vector3 checkpointPos)
+    {
+        checkpointPosition = checkpointPos;
     }
 
-    public void ResetToCheckpoint(Vector3 checkpointPosition){
-        if(checkpointPosition != Vector3.zero){
+    public void ResetToCheckpoint(Vector3 checkpointPosition)
+    {
+        if (checkpointPosition != Vector3.zero)
+        {
             transform.position = checkpointPosition;
         }
         else
         {
             Debug.LogWarning("No checkpoint set!");
         }
-        if(em != null){
+
+        if (em != null)
+        {
             em.ResetToSpawn();
         }
     }
 
-    public Vector3 GetCheckpointPosition(){
+    public Vector3 GetCheckpointPosition()
+    {
         return checkpointPosition;
     }
-    public void SetTransformationState(bool state)
-{
-    isTransformed = state;
-}
 
+    public void SetTransformationState(bool state)
+    {
+        isTransformed = state;
+    }
+
+    // Additional methods can be implemented here...
 }
