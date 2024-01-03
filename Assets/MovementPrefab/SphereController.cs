@@ -13,7 +13,6 @@ public class SphereController : MonoBehaviour
     public float jumpCooldown = 2.0f;
     public LayerMask obstacleLayer;
     public float cameraDistanceScale = 1.0f;
-    public float minYPosition = -16f; // Minimum y-position before reset
     public float groundCheckDistance = 1.6f;
     public bool isGrounded = false;
 
@@ -24,6 +23,7 @@ public class SphereController : MonoBehaviour
     public float ChargeRate;
     private Coroutine recharge;
     public bool boosting = false;
+
     // Private variables for internal logic
     private Rigidbody rb;
     private Vector3 cameraOffset;
@@ -33,62 +33,50 @@ public class SphereController : MonoBehaviour
     private bool isTransformed = false;
 
     // Checkpoint related variables
-    public float yThreshold = -10.0f;
+    public float minYPosition = -16f; // Minimum y-position before reset
     private Vector3 checkpointPosition = Vector3.zero;
 
     // Transformation specific variables
     private float flightSpeed = 20.0f;
     private float descentSpeed = 20.0f;
 
-    void Start()
-    {
+    void Start(){
         rb = GetComponent<Rigidbody>();
         em = GameObject.FindWithTag("Enemy").GetComponent<EnemyMovement>();
 
-        if (cameraTransform != null)
-        {
+        if (cameraTransform != null){
             cameraOffset = cameraTransform.position - transform.position + 5.0f * Vector3.up;
         }
 
         Cursor.lockState = CursorLockMode.Locked;
     }
 
-    void Update()
-    {
+    void Update(){
         CheckIfGrounded();
         HandleJump();
         RotateCamera();
         HandleBoosting();
     
-        if (isTransformed)
-        {
+        if (isTransformed){
             HandleTransformedMovement();
         }
 
-        if (transform.position.y < minYPosition)
-        {
+        if (transform.position.y < minYPosition){
             ResetToCheckpoint(checkpointPosition);
         }
 
-        if (Input.GetKeyDown(KeyCode.R))
-        {
+        if (Input.GetKeyDown(KeyCode.R)){
             ResetToCheckpoint(checkpointPosition);
-        }
-        
-        
-        
-        
+        }  
     }
 
-    void FixedUpdate()
-    {
+    void FixedUpdate(){
         MoveSphere();
         WallCheck();
         ApplyCustomDownwardAcceleration();
     }
 
-    private void MoveSphere()
-    {
+    private void MoveSphere(){
         float horizontalInput = Input.GetAxis("Horizontal");
         float verticalInput = Input.GetAxis("Vertical");
 
@@ -103,27 +91,21 @@ public class SphereController : MonoBehaviour
 
         rb.velocity = velocityParallel + velocityPerpendicular;
 
-        if (horizontalInput != 0 || verticalInput != 0)
-        {
+        if (horizontalInput != 0 || verticalInput != 0){
             Vector3 force = desiredDirection * acceleration;
             
             if(boosting) force *= 2f; // Double the force if boosting
 
-            if (rb.velocity.magnitude < maxSpeed)
-            {
+            if (rb.velocity.magnitude < maxSpeed){
                 rb.AddForce(force, ForceMode.Acceleration);
             }
         }
     }
 
-    private void HandleTransformedMovement()
-    {
-        if (Input.GetKey(KeyCode.Space))
-        {
+    private void HandleTransformedMovement(){
+        if (Input.GetKey(KeyCode.Space)){
             FlyUpwards();
-        }
-        else if (Input.GetKey(KeyCode.X))
-        {
+        } else if (Input.GetKey(KeyCode.X)){
             Descend();
         }
     }
@@ -133,11 +115,9 @@ public class SphereController : MonoBehaviour
             boosting = true;
         } else if(Input.GetKeyUp("left shift")) {
             boosting = false;
-        }
-        if(!boosting){
+        } if(!boosting){
             maxSpeed = 10f;
-        }
-        if(boosting && Energy > 0){
+        } if(boosting && Energy > 0){
             
             maxSpeed = 20f;
             
@@ -147,7 +127,6 @@ public class SphereController : MonoBehaviour
 
             if(recharge != null) StopCoroutine(recharge); // Stop recharging energy when action is performed
             recharge = StartCoroutine(RechargeEnergy()); // Start recharging energy
-
         }
     }
     
@@ -158,23 +137,19 @@ public class SphereController : MonoBehaviour
             if(Energy > MaxEnergy) Energy = MaxEnergy; // Prevents energy from going over max
             EnergyBar.fillAmount = Energy / MaxEnergy;
             yield return new WaitForSeconds (0.1f);
-        
         }
         recharge = null;
     }
 
-    private void FlyUpwards()
-    {
+    private void FlyUpwards(){
         rb.AddForce(Vector3.up * flightSpeed, ForceMode.Acceleration);
     }
 
-    private void Descend()
-    {
+    private void Descend(){
         rb.AddForce(Vector3.down * descentSpeed, ForceMode.Acceleration);
     }
 
-    private void RotateCamera()
-    {
+    private void RotateCamera(){
         currentAngleHorizontal += Input.GetAxis("Mouse X") * cameraSensitivity * Time.deltaTime;
         currentAngleVertical -= Input.GetAxis("Mouse Y") * cameraSensitivity * Time.deltaTime;
         currentAngleVertical = Mathf.Clamp(currentAngleVertical, 270f, 360f);
@@ -186,79 +161,59 @@ public class SphereController : MonoBehaviour
         cameraTransform.LookAt(transform.position);
     }
 
-    private void UpdateCameraVectors()
-{
-    // Ensure the camera's forward and right vectors are horizontal (y component is zero)
-    cameraTransform.forward = new Vector3(cameraTransform.forward.x, 0, cameraTransform.forward.z).normalized;
-    cameraTransform.right = new Vector3(cameraTransform.right.x, 0, cameraTransform.right.z).normalized;
-}
+    private void UpdateCameraVectors(){
+        // Ensure the camera's forward and right vectors are horizontal (y component is zero)
+        cameraTransform.forward = new Vector3(cameraTransform.forward.x, 0, cameraTransform.forward.z).normalized;
+        cameraTransform.right = new Vector3(cameraTransform.right.x, 0, cameraTransform.right.z).normalized;
+    }
 
 
-    private void HandleJump()
-    {
-        if (!isTransformed && Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
+    private void HandleJump(){
+        if (!isTransformed && Input.GetKeyDown(KeyCode.Space) && isGrounded){
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
 
-    private void CheckIfGrounded()
-    {
+    private void CheckIfGrounded(){
         RaycastHit hit;
         isGrounded = Physics.Raycast(transform.position, -Vector3.up, out hit, groundCheckDistance);
     }
 
-    private void WallCheck()
-    {
+    private void WallCheck(){
         RaycastHit hit;
         float wallCheckDistance = cameraOffset.magnitude * cameraDistanceScale;
 
-        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, wallCheckDistance, obstacleLayer))
-        {
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, wallCheckDistance, obstacleLayer)){
             cameraTransform.position = hit.point - cameraTransform.forward * 0.2f;
         }
     }
 
-    private void ApplyCustomDownwardAcceleration()
-    {
-        if (!isGrounded && !isTransformed)
-        {
+    private void ApplyCustomDownwardAcceleration(){
+        if (!isGrounded && !isTransformed){
             float extraDownwardAcceleration = 20.0f;
             rb.AddForce(Vector3.down * extraDownwardAcceleration, ForceMode.Acceleration);
         }
     }
 
-    public void SetCheckpointPosition(Vector3 checkpointPos)
-    {
+    public void SetCheckpointPosition(Vector3 checkpointPos){
         checkpointPosition = checkpointPos;
     }
 
-    public void ResetToCheckpoint(Vector3 checkpointPosition)
-    {
-        if (checkpointPosition != Vector3.zero)
-        {
+    public void ResetToCheckpoint(Vector3 checkpointPosition){
+        if (checkpointPosition != Vector3.zero){
             transform.position = checkpointPosition;
-        }
-        else
-        {
+        } else {
             Debug.LogWarning("No checkpoint set!");
-        }
-
-        if (em != null)
-        {
+        } if (em != null){
             em.ResetToSpawn();
         }
     }
 
-    public Vector3 GetCheckpointPosition()
-    {
+    public Vector3 GetCheckpointPosition(){
         return checkpointPosition;
     }
 
-    public void SetTransformationState(bool state)
-    {
+    public void SetTransformationState(bool state){
         isTransformed = state;
     }
-
-    // Additional methods can be implemented here...
 }
