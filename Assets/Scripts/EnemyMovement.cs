@@ -8,7 +8,7 @@ public class EnemyMovement : MonoBehaviour{
     private NavMeshAgent navMeshAgent;
     private UnityEngine.Vector3 spawnPosition;
     public Transform Player;
-    private float aggroRange = 23f; 
+    private float aggroRange = 25f; 
     private SphereController pm; // Reference to the player's Movement script
 
     public static List<EnemyMovement> allEnemies = new List<EnemyMovement>();

@@ -13,7 +13,6 @@ public class ShopHandler : MonoBehaviour
     private void Start()
     {
         sm = canvas.GetComponent<ScoreManager>();
-        // Ensure that the connectedObject and newMaterial are not null before using them
         if (connectedObject == null)
         {
             Debug.LogError("Connected Object is not assigned in ShopHandler.");
@@ -27,23 +26,21 @@ public class ShopHandler : MonoBehaviour
 
     private void Update()
 {
-    // Check for H key press and total is greater than or equal to 200
     if (Input.GetKeyDown(KeyCode.H) && (sm.getTotal() >= 200f))
     {   
-        sm.subtractTotal(100f);
+        sm.subtractTotal(200f);
         ChangeMaterial();
     }
 }
 
     private void ChangeMaterial()
     {
-        // Ensure that the newMaterial is not null before changing the material
         if (newMaterial != null)
         {
-            // Change the material of the connectedObject
+            // Material change
             Renderer renderer = connectedObject.GetComponent<Renderer>();
 
-            // Check if the connectedObject has a Renderer component
+           
             if (renderer != null)
             {
                 renderer.material = newMaterial;

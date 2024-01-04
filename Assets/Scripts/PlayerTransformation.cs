@@ -3,11 +3,10 @@ using UnityEngine;
 
 public class PlayerTransformation : MonoBehaviour
 {
-    // Public variables for customization
+    
     public Mesh[] playerMeshes;
     public Material transformationMaterial;
 
-    // Private variables for internal logic
     private MeshFilter meshFilter;
     private Renderer renderer;
     private Material originalMaterial;
@@ -30,7 +29,7 @@ public class PlayerTransformation : MonoBehaviour
         originalScale = transform.localScale;
     }
 
-    // Update is called once per frame
+    
     void Update()
     {
         // Check if transformation duration has elapsed
@@ -49,22 +48,20 @@ public class PlayerTransformation : MonoBehaviour
     {
         if (!isTransforming)
         {
-            ScaleTo(0.1f); // Instant scale to 1
+            ScaleTo(0.1f); 
             TransformPlayer();
             transformationStartTime = Time.time;
             isTransforming = true;
 
-            // Update SphereController state
             UpdateSphereControllerState(true);
         }
     }
 
-    // Transforms the player
+   
     private void TransformPlayer()
     {
         if (transformationMaterial != null && playerMeshes.Length > 0)
         {
-            // Apply transformation properties
             renderer.material = transformationMaterial;
             meshFilter.mesh = GetNextMesh();
             rb.useGravity = false;
@@ -90,7 +87,6 @@ public class PlayerTransformation : MonoBehaviour
         UpdateSphereControllerState(false);
     }
 
-    // Instantly scales the player to the specified size
     private void ScaleTo(float targetScale)
     {
         transform.localScale = new Vector3(targetScale, targetScale, targetScale);
